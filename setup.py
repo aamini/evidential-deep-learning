@@ -24,6 +24,7 @@ setup(
     description=
     "Learn fast, scalable, and calibrated measures of uncertainty using neural networks!",
     long_description=readme,
+    long_description_content_type='text/markdown',
     url="https://github.com/aamini/evidential-deep-learning",
     download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.3.0.tar.gz",
     author="Alexander Amini",
