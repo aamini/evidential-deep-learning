@@ -14,14 +14,18 @@
 
 from setuptools import setup, find_packages
 
+with open('README.md') as readme_file:
+    readme = readme_file.read()
+
 setup(
     name="evidential_deep_learning",
-    version="0.2.0",
+    version="0.3.0",
     packages=find_packages(),
     description=
     "Learn fast, scalable, and calibrated measures of uncertainty using neural networks!",
+    long_description=readme,
     url="https://github.com/aamini/evidential-deep-learning",
-    download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.2.0.tar.gz",
+    download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.3.0.tar.gz",
     author="Alexander Amini",
     author_email="amini@mit.edu",
     license="Apache License 2.0",
