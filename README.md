@@ -41,7 +41,8 @@ model.compile(
     loss=edl.losses.evidential_regression # Evidential loss!
 )
 ```
-
+![](assets/animation.gif)
+Checkout `hello_world.py` for an end-to-end toy example walking through this step-by-step. For more complex examples, scaling up to computer vision problems (where we learn to predict tens of thousands of evidential distributions simultaneously!), please refer to the NeurIPS 2020 paper, and the reproducibility section of this repo to run those examples. 
 
 ## Reproducibility
 All of the results published as part of our NeurIPS paper can be reproduced as part of this repository. Please refer to [the reproducibility section](./neurips2020) for details and instructions to obtain each result. 
