@@ -62,7 +62,7 @@ def NIG_Reg(y, gamma, v, alpha, beta, omega=0.01, reduce=True, kl=False):
 
     return tf.reduce_mean(reg) if reduce else reg
 
-def evidential_regression(y_true, evidential_output, coeff=1.0):
+def EvidentialRegression(y_true, evidential_output, coeff=1.0):
     gamma, v, alpha, beta = tf.split(evidential_output, 4, axis=-1)
     loss_nll = NIG_NLL(y_true, gamma, v, alpha, beta)
     loss_reg = NIG_Reg(y_true, gamma, v, alpha, beta)

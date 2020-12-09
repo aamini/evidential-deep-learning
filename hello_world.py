@@ -19,13 +19,13 @@ def main():
     ])
 
     # Custom loss function to handle the custom regularizer coefficient
-    def evidential_regression_loss(true, pred):
-        return edl.losses.evidential_regression(true, pred, coeff=1e-2)
+    def EvidentialRegressionLoss(true, pred):
+        return edl.losses.EvidentialRegression(true, pred, coeff=1e-2)
 
     # Compile and fit the model!
     model.compile(
         optimizer=tf.keras.optimizers.Adam(5e-4),
-        loss=evidential_regression_loss)
+        loss=EvidentialRegressionLoss)
     model.fit(x_train, y_train, batch_size=100, epochs=500)
 
     # Predict and plot using the trained model
