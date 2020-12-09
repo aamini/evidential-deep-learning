@@ -1,7 +1,8 @@
 # Evidential Deep Learning
 
-### "All models are wrong, but some [*that know when they can be trusted*] are useful!"
-*- George Box (Adapted)*
+<h3 align='center'>"All models are wrong, but some — <i>that know when they can be trusted</i> — are useful!"</h3>
+<p align='right'><i>- George Box (Adapted)</i></p>
+
 
 ![](assets/banner.png)
 
@@ -38,10 +39,12 @@ model = tf.keras.Sequential(
 )
 model.compile(
     optimizer=tf.keras.optimizers.Adam(1e-3), 
-    loss=edl.losses.evidential_regression # Evidential loss!
+    loss=edl.losses.EvidentialRegression # Evidential loss!
 )
 ```
 
+![](assets/animation.gif)
+Checkout `hello_world.py` for an end-to-end toy example walking through this step-by-step. For more complex examples, scaling up to computer vision problems (where we learn to predict tens of thousands of evidential distributions simultaneously!), please refer to the NeurIPS 2020 paper, and the reproducibility section of this repo to run those examples. 
 
 ## Reproducibility
 All of the results published as part of our NeurIPS paper can be reproduced as part of this repository. Please refer to [the reproducibility section](./neurips2020) for details and instructions to obtain each result. 
