@@ -1,7 +1,8 @@
 # Evidential Deep Learning
 
-### "All models are wrong, but some [*that know when they can be trusted*] are useful!"
-*- George Box (Adapted)*
+<h3 align='center'>"All models are wrong, but some — <i>that know when they can be trusted</i> — are useful!"</h3>
+<p align='right'><i>- George Box (Adapted)</i></p>
+
 
 ![](assets/banner.png)
 
