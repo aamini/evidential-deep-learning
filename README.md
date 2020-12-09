@@ -6,7 +6,7 @@
 
 ![](assets/banner.png)
 
-This repository contains the code to reproduce [Deep Evidential Regression](http://www.mit.edu/~amini/pubs/pdf/deep-evidential-regression.pdf), as published in [NeurIPS 2020](https://neurips.cc/), as well as more general code to leverage evidential learning to train neural networks to learn their own measures of uncertainty directly from data!
+This repository contains the code to reproduce [Deep Evidential Regression](https://proceedings.neurips.cc/paper/2020/file/aab085461de182608ee9f607f3f7d18f-Paper.pdf), as published in [NeurIPS 2020](https://neurips.cc/), as well as more general code to leverage evidential learning to train neural networks to learn their own measures of uncertainty directly from data!
 
 ## Setup
 To use this package, you must install the following dependencies first: 
@@ -24,7 +24,7 @@ Now you're ready to start using this package directly as part of your existing `
 ```
 
 ### Example
-To use evidential deep learning, you must edit the last layer of your model to be *evidential* and use a supported loss function to train the system end-to-end. This repository supports evidential layers for both fully connected and convolutional (2D) layers. The evidential prior distribution presented in the paper follow a Normal Inverse-Gamma and can be added to your model: 
+To use evidential deep learning, you must edit the last layer of your model to be *evidential* and use a supported loss function to train the system end-to-end. This repository supports evidential layers for both fully connected and convolutional (2D) layers. The evidential prior distribution presented in the paper follows a Normal Inverse-Gamma and can be added to your model: 
 
 ```
 import evidential_deep_learning as edl
