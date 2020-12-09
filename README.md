@@ -39,9 +39,10 @@ model = tf.keras.Sequential(
 )
 model.compile(
     optimizer=tf.keras.optimizers.Adam(1e-3), 
-    loss=edl.losses.evidential_regression # Evidential loss!
+    loss=edl.losses.EvidentialRegression # Evidential loss!
 )
 ```
+
 ![](assets/animation.gif)
 Checkout `hello_world.py` for an end-to-end toy example walking through this step-by-step. For more complex examples, scaling up to computer vision problems (where we learn to predict tens of thousands of evidential distributions simultaneously!), please refer to the NeurIPS 2020 paper, and the reproducibility section of this repo to run those examples. 
 
