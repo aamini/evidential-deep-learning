@@ -16,12 +16,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="evidential_deep_learning",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
     description=
     "Learn fast, scalable, and calibrated measures of uncertainty using neural networks!",
     url="https://github.com/aamini/evidential-deep-learning",
-    download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.1.0.tar.gz",
+    download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.2.0.tar.gz",
     author="Alexander Amini",
     author_email="amini@mit.edu",
     license="Apache License 2.0",
