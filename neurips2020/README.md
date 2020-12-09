@@ -1,7 +1,15 @@
 # Deep Evidential Regression
-*NeurIPS 2020 Submission*
+*Alexander Amini, Wilko Schwarting, Ava Soleimany, Daniela Rus. NeurIPS 2020*
 
 This repository contains the code to reproduce all results presented in the NeurIPS submission: "Deep Evidential Regression".
+
+    @article{amini2020deep,
+      title={Deep evidential regression},
+      author={Amini, Alexander and Schwarting, Wilko and Soleimany, Ava and Rus, Daniela},
+      journal={Advances in Neural Information Processing Systems},
+      volume={33},
+      year={2020}
+    }
 
 
 ## Setup
@@ -14,11 +22,10 @@ To get started, first download the relevant datasets and some pre-trained models
 
 To download run the following commands from a Unix shell:
 ```
-cd evidential_regression
+cd evidential_deep_learning/neurips2020
 bash ./download_data.sh
 ```
-We also include pre-trained models, in case reviewers would like to use these to produce results without retraining from scratch. If reviewers would like to re-train, we provide the code to do so - we include pre-trained models here only for added convienence.
-
+We also include pre-trained models, in case reviewers would like to use these to produce results without retraining from scratch. If you would like to re-train, we provide the code to do so - we include pre-trained models here only for added convienence.
 
 ### Software environment
 We package our codebase into a conda environment, with all dependencies listed in `environment.yml`. To create a local copy of this environment and activate it, run the following commands:
@@ -54,4 +61,4 @@ python run_uci_dataset_tests.py [-h] [--num-trials NUM_TRIALS]
                                 [--num-epochs NUM_EPOCHS]
                                 [--datasets {yacht, ...}]]
 ```
-Thank you!
+Enjoy!
