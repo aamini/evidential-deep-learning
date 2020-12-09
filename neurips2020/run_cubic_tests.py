@@ -6,7 +6,7 @@ import tensorflow_probability as tfp
 from pathlib import Path
 import os
 
-import edl
+import evidential_deep_learning as edl
 import data_loader
 import trainers
 import models
@@ -177,11 +177,11 @@ if __name__ == "__main__":
     Path(save_fig_dir).mkdir(parents=True, exist_ok=True)
 
     evidence_reg_4_layers_100_neurons()
-    evidence_noreg_4_layers_100_neurons()
+    # evidence_noreg_4_layers_100_neurons()
 
-    ensemble_4_layers_100_neurons()
-    gaussian_4_layers_100_neurons()
-    dropout_4_layers_100_neurons()
-    bbbp_4_layers_100_neurons()
+    # ensemble_4_layers_100_neurons()
+    # gaussian_4_layers_100_neurons()
+    # dropout_4_layers_100_neurons()
+    # bbbp_4_layers_100_neurons()
 
     print(f"Done! Figures saved to {save_fig_dir}")

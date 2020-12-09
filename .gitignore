@@ -141,3 +141,7 @@ cython_debug/
 ._DS_Store
 
 *.h5
+*.pdf
+
+logs/
+save/

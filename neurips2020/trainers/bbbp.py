@@ -8,7 +8,7 @@ import sys
 import h5py
 from pathlib import Path
 
-import edl
+import evidential_deep_learning as edl
 from .util import normalize, gallery
 
 class BBBP:

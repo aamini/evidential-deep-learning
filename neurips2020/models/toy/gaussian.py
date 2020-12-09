@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
 import functools
-import edl
+import evidential_deep_learning as edl
 
 def create(
     input_shape,
