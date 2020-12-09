@@ -20,7 +20,7 @@ setup(
     packages=find_packages(),
     description=
     "Learn fast, scalable, and calibrated measures of uncertainty using neural networks!",
-    url="https://github.com/aamini/evidential_deep_learning",
+    url="https://github.com/aamini/evidential-deep-learning",
     download_url="https://github.com/aamini/evidential-deep-learning/archive/v0.1.0.tar.gz",
     author="Alexander Amini",
     author_email="amini@mit.edu",
