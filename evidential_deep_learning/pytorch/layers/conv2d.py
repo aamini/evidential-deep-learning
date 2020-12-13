@@ -23,7 +23,7 @@ class Conv2DNormal(Module):
 
         sigma = F.softplus(logsigma) + 1e-6
 
-        return torch.stack([mu, sigma])
+        return torch.stack([mu, sigma]).to(x.device)
 
 
 class Conv2DNormalGamma(Module):
@@ -44,5 +44,5 @@ class Conv2DNormalGamma(Module):
         nu = F.softplus(lognu)
         alpha = F.softplus(logalpha) + 1.
         beta = F.softplus(logbeta)
-        return torch.stack([gamma, nu, alpha, beta])
+        return torch.stack([gamma, nu, alpha, beta]).to(x.device)
 

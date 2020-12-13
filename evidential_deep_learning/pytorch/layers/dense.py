@@ -22,7 +22,7 @@ class DenseNormal(Module):
             mu, logsigma = torch.split(x, self.n_tasks, dim=1)
 
         sigma = F.softplus(logsigma) + 1e-6
-        return torch.stack(mu, sigma)
+        return torch.stack(mu, sigma).to(x.device)
 
 
 class DenseNormalGamma(Module):
