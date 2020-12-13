@@ -5,7 +5,7 @@ import tensorflow as tf
 import time
 from scipy import stats
 
-import edl
+import evidential_deep_learning as edl
 import data_loader
 import trainers
 import models

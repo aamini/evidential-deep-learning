@@ -1,6 +1,6 @@
 import tensorflow as tf
 import functools
-import evidential_deep_learning as edl
+import evidential_deep_learning
 
 def create(
     input_shape,

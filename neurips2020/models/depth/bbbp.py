@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, \
 
 import functools
 
+
 def create(input_shape, num_class=1, activation=tf.nn.relu):
     opts = locals().copy()
 

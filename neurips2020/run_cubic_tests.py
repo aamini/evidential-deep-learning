@@ -6,7 +6,7 @@ import tensorflow_probability as tfp
 from pathlib import Path
 import os
 
-import evidential_deep_learning as edl
+import evidential_deep_learning
 import data_loader
 import trainers
 import models
