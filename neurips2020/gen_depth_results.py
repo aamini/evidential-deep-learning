@@ -1,19 +1,20 @@
 import argparse
-from collections import defaultdict
-import cv2
-from enum import Enum
-import matplotlib.pyplot as plt
-import numpy as np
 import os
-import pandas as pd
+from collections import defaultdict
+from enum import Enum
 from pathlib import Path
-import seaborn as sns
+
+import cv2
+import matplotlib.pyplot as plt
+import models
+import numpy as np
+import pandas as pd
 import scipy.stats
+import seaborn as sns
 import tensorflow as tf
 from tqdm import tqdm
 
 import evidential_deep_learning as edl
-import models
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--load-pkl", action='store_true',
@@ -28,6 +29,7 @@ class Model(Enum):
     Dropout = "Dropout"
     Ensemble = "Ensemble"
     Evidential = "Evidential"
+
 
 save_dir = "pretrained_models"
 trained_models = {
@@ -49,13 +51,14 @@ trained_models = {
 }
 output_dir = "figs/depth"
 
+
 def compute_predictions(batch_size=50, n_adv=9):
     (x_in, y_in), (x_ood, y_ood) = load_data()
     datasets = [(x_in, y_in, False), (x_ood, y_ood, True)]
 
     df_pred_image = pd.DataFrame(
         columns=["Method", "Model Path", "Input",
-            "Target", "Mu", "Sigma", "Adv. Mask", "Epsilon", "OOD"])
+                 "Target", "Mu", "Sigma", "Adv. Mask", "Epsilon", "OOD"])
 
     adv_eps = np.linspace(0, 0.04, n_adv)
 
@@ -69,10 +72,10 @@ def compute_predictions(batch_size=50, n_adv=9):
 
             for x, y, ood in datasets:
                 # max(10,x.shape[0]//500-1)
-                for start_i in tqdm(np.arange(0, 3*batch_size, batch_size)):
-                    inds = np.arange(start_i, min(start_i+batch_size, x.shape[0]-1))
-                    x_batch = x[inds]/np.float32(255.)
-                    y_batch = y[inds]/np.float32(255.)
+                for start_i in tqdm(np.arange(0, 3 * batch_size, batch_size)):
+                    inds = np.arange(start_i, min(start_i + batch_size, x.shape[0] - 1))
+                    x_batch = x[inds] / np.float32(255.)
+                    y_batch = y[inds] / np.float32(255.)
 
                     if ood:
                         ### Compute predictions and save
@@ -96,8 +99,6 @@ def compute_predictions(batch_size=50, n_adv=9):
                                 method, model_path, model, x_batch, y_batch, ood, mask_batch, eps)
                             df_pred_image = df_pred_image.append(summary_to_add, ignore_index=True)
 
-
-
     return df_pred_image
 
 
@@ -112,9 +113,9 @@ def get_prediction_summary(method, model_path, model, x_batch, y_batch, ood, mas
 
     ### Save the predictions to some dataframes for later analysis
     summary = [{"Method": method.value, "Model Path": model_path,
-        "Input": x, "Target": y, "Mu": mu, "Sigma": sigma,
-        "Adv. Mask": mask, "Epsilon": eps, "OOD": ood}
-        for x,y,mu,sigma,mask in zip(x_batch, y_batch, mu_batch, sigma_batch, mask_batch)]
+                "Input": x, "Target": y, "Mu": mu, "Sigma": sigma,
+                "Adv. Mask": mask, "Epsilon": eps, "OOD": ood}
+               for x, y, mu, sigma, mask in zip(x_batch, y_batch, mu_batch, sigma_batch, mask_batch)]
     return summary
 
 
@@ -138,7 +139,7 @@ def df_image_to_pixels(df, keys=["Target", "Mu", "Sigma"]):
 def gen_cutoff_plot(df_image, eps=0.0, ood=False, plot=True):
     print(f"Generating cutoff plot with eps={eps}, ood={ood}")
 
-    df = df_image[(df_image["Epsilon"]==eps) & (df_image["OOD"]==ood)]
+    df = df_image[(df_image["Epsilon"] == eps) & (df_image["OOD"] == ood)]
     df_pixel = df_image_to_pixels(df, keys=["Target", "Mu", "Sigma"])
 
     df_cutoff = pd.DataFrame(
@@ -146,17 +147,16 @@ def gen_cutoff_plot(df_image, eps=0.0, ood=False, plot=True):
 
     for method, model_path_list in trained_models.items():
         for model_i, model_path in enumerate(tqdm(model_path_list)):
-
-            df_model = df_pixel[(df_pixel["Method"]==method.value) & (df_pixel["Model Path"]==model_path)]
+            df_model = df_pixel[(df_pixel["Method"] == method.value) & (df_pixel["Model Path"] == model_path)]
             df_model = df_model.sort_values("Sigma", ascending=False)
-            percentiles = np.arange(100)/100.
+            percentiles = np.arange(100) / 100.
             cutoff_inds = (percentiles * df_model.shape[0]).astype(int)
 
             df_model["Error"] = np.abs(df_model["Mu"] - df_model["Target"])
             mean_error = [df_model[cutoff:]["Error"].mean()
-                for cutoff in cutoff_inds]
+                          for cutoff in cutoff_inds]
             df_single_cutoff = pd.DataFrame({'Method': method.value, 'Model Path': model_path,
-                'Percentile': percentiles, 'Error': mean_error})
+                                             'Percentile': percentiles, 'Error': mean_error})
 
             df_cutoff = df_cutoff.append(df_single_cutoff)
 
@@ -173,17 +173,16 @@ def gen_cutoff_plot(df_image, eps=0.0, ood=False, plot=True):
         plt.show()
 
         g = sns.FacetGrid(df_cutoff, col="Method", legend_out=False)
-        g = g.map_dataframe(sns.lineplot, x="Percentile", y="Error", hue="Model Path")#.add_legend()
+        g = g.map_dataframe(sns.lineplot, x="Percentile", y="Error", hue="Model Path")  # .add_legend()
         plt.savefig(os.path.join(output_dir, f"cutoff_eps-{eps}_ood-{ood}_trial_panel.pdf"))
         plt.show()
-
 
     return df_cutoff
 
 
 def gen_calibration_plot(df_image, eps=0.0, ood=False, plot=True):
     print(f"Generating calibration plot with eps={eps}, ood={ood}")
-    df = df_image[(df_image["Epsilon"]==eps) & (df_image["OOD"]==ood)]
+    df = df_image[(df_image["Epsilon"] == eps) & (df_image["OOD"] == ood)]
     # df = df.iloc[::10]
     df_pixel = df_image_to_pixels(df, keys=["Target", "Mu", "Sigma"])
 
@@ -193,8 +192,8 @@ def gen_calibration_plot(df_image, eps=0.0, ood=False, plot=True):
     for method, model_path_list in trained_models.items():
         for model_i, model_path in enumerate(tqdm(model_path_list)):
 
-            df_model = df_pixel[(df_pixel["Method"]==method.value) & (df_pixel["Model Path"]==model_path)]
-            expected_p = np.arange(41)/40.
+            df_model = df_pixel[(df_pixel["Method"] == method.value) & (df_pixel["Model Path"] == model_path)]
+            expected_p = np.arange(41) / 40.
 
             observed_p = []
             for p in expected_p:
@@ -203,17 +202,18 @@ def gen_calibration_plot(df_image, eps=0.0, ood=False, plot=True):
                 observed_p.append(obs_p)
 
             df_single = pd.DataFrame({'Method': method.value, 'Model Path': model_path,
-                'Expected Conf.': expected_p, 'Observed Conf.': observed_p})
+                                      'Expected Conf.': expected_p, 'Observed Conf.': observed_p})
             df_calibration = df_calibration.append(df_single)
 
     df_truth = pd.DataFrame({'Method': Model.GroundTruth.value, 'Model Path': "",
-        'Expected Conf.': expected_p, 'Observed Conf.': expected_p})
+                             'Expected Conf.': expected_p, 'Observed Conf.': expected_p})
     df_calibration = df_calibration.append(df_truth)
 
     df_calibration['Calibration Error'] = np.abs(df_calibration['Expected Conf.'] - df_calibration['Observed Conf.'])
     df_calibration["Epsilon"] = eps
     table = df_calibration.groupby(["Method", "Model Path"])["Calibration Error"].mean().reset_index()
-    table = pd.pivot_table(table, values="Calibration Error", index="Method", aggfunc=[np.mean, np.std, scipy.stats.sem])
+    table = pd.pivot_table(table, values="Calibration Error", index="Method",
+                           aggfunc=[np.mean, np.std, scipy.stats.sem])
 
     if plot:
         print(table)
@@ -225,21 +225,20 @@ def gen_calibration_plot(df_image, eps=0.0, ood=False, plot=True):
         plt.show()
 
         g = sns.FacetGrid(df_calibration, col="Method", legend_out=False)
-        g = g.map_dataframe(sns.lineplot, x="Expected Conf.", y="Observed Conf.", hue="Model Path")#.add_legend()
+        g = g.map_dataframe(sns.lineplot, x="Expected Conf.", y="Observed Conf.", hue="Model Path")  # .add_legend()
         plt.savefig(os.path.join(output_dir, f"calib_eps-{eps}_ood-{ood}_panel.pdf"))
         plt.show()
 
     return df_calibration, table
 
 
-
 def gen_adv_plots(df_image, ood=False):
     print(f"Generating calibration plot with ood={ood}")
-    df = df_image[df_image["OOD"]==ood]
+    df = df_image[df_image["OOD"] == ood]
     # df = df.iloc[::10]
     df_pixel = df_image_to_pixels(df, keys=["Target", "Mu", "Sigma", "Epsilon"])
     df_pixel["Error"] = np.abs(df_pixel["Mu"] - df_pixel["Target"])
-    df_pixel["Entropy"] = 0.5*np.log(2*np.pi*np.exp(1.)*(df_pixel["Sigma"]**2))
+    df_pixel["Entropy"] = 0.5 * np.log(2 * np.pi * np.exp(1.) * (df_pixel["Sigma"] ** 2))
 
     ### Plot epsilon vs error per method
     df = df_pixel.groupby([df_pixel.index, "Method", "Model Path", "Epsilon"]).mean().reset_index()
@@ -257,7 +256,6 @@ def gen_adv_plots(df_image, ood=False):
     # plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_method_entropy.pdf"))
     # plt.show()
 
-
     ### Plot entropy cdf for different epsilons
     df_cumdf = pd.DataFrame(columns=["Method", "Model Path", "Epsilon", "Entropy", "CDF"])
     unc_ = np.linspace(df["Entropy"].min(), df["Entropy"].max(), 100)
@@ -266,18 +264,18 @@ def gen_adv_plots(df_image, ood=False):
         for model_path in df["Model Path"].unique():
             for eps in df["Epsilon"].unique():
                 df_subset = df[
-                    (df["Method"]==method) &
-                    (df["Model Path"]==model_path) &
-                    (df["Epsilon"]==eps)]
+                    (df["Method"] == method) &
+                    (df["Model Path"] == model_path) &
+                    (df["Epsilon"] == eps)]
                 if len(df_subset) == 0:
                     continue
                 unc = np.sort(df_subset["Entropy"])
-                prob = np.linspace(0,1,unc.shape[0])
-                f_cdf = scipy.interpolate.interp1d(unc, prob, fill_value=(0.,1.), bounds_error=False)
+                prob = np.linspace(0, 1, unc.shape[0])
+                f_cdf = scipy.interpolate.interp1d(unc, prob, fill_value=(0., 1.), bounds_error=False)
                 prob_ = f_cdf(unc_)
 
                 df_single = pd.DataFrame({'Method': method, 'Model Path': model_path,
-                    'Epsilon': eps, "Entropy": unc_, 'CDF': prob_})
+                                          'Epsilon': eps, "Entropy": unc_, 'CDF': prob_})
                 df_cumdf = df_cumdf.append(df_single)
 
     g = sns.FacetGrid(df_cumdf, col="Method")
@@ -317,16 +315,16 @@ def gen_adv_plots(df_image, ood=False):
 def gen_ood_comparison(df_image, unc_key="Entropy"):
     print(f"Generating OOD plots with unc_key={unc_key}")
 
-    df = df_image[df_image["Epsilon"]==0.0] # Remove adversarial noise experiments
+    df = df_image[df_image["Epsilon"] == 0.0]  # Remove adversarial noise experiments
     # df = df.iloc[::5]
     df_pixel = df_image_to_pixels(df, keys=["Target", "Mu", "Sigma", "OOD"])
-    df_pixel["Entropy"] = 0.5*np.log(2*np.pi*np.exp(1.)*(df_pixel["Sigma"]**2))
+    df_pixel["Entropy"] = 0.5 * np.log(2 * np.pi * np.exp(1.) * (df_pixel["Sigma"] ** 2))
 
-    df_by_method = df_pixel.groupby(["Method","Model Path", "OOD"])
-    df_by_image = df_pixel.groupby([df_pixel.index, "Method","Model Path", "OOD"])
+    df_by_method = df_pixel.groupby(["Method", "Model Path", "OOD"])
+    df_by_image = df_pixel.groupby([df_pixel.index, "Method", "Model Path", "OOD"])
 
-    df_mean_unc = df_by_method[unc_key].mean().reset_index() #mean of all pixels per method
-    df_mean_unc_img = df_by_image[unc_key].mean().reset_index() #mean of all pixels in every method and image
+    df_mean_unc = df_by_method[unc_key].mean().reset_index()  # mean of all pixels per method
+    df_mean_unc_img = df_by_image[unc_key].mean().reset_index()  # mean of all pixels in every method and image
 
     sns.catplot(x="Method", y=unc_key, hue="OOD", data=df_mean_unc_img, kind="violin")
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_violin.pdf"))
@@ -336,13 +334,11 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_box.pdf"))
     plt.show()
 
-
     ### Plot PDF for each Method on both OOD and IN
     g = sns.FacetGrid(df_mean_unc_img, col="Method", hue="OOD")
     g.map(sns.distplot, "Entropy").add_legend()
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_pdf_per_method.pdf"))
     plt.show()
-
 
     ### Grab some sample images of most and least uncertainty
     for method in df_mean_unc_img["Method"].unique():
@@ -350,8 +346,8 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
         imgs_min = dict()
         for ood in df_mean_unc_img["OOD"].unique():
             df_subset = df_mean_unc_img[
-                (df_mean_unc_img["Method"]==method) &
-                (df_mean_unc_img["OOD"]==ood)]
+                (df_mean_unc_img["Method"] == method) &
+                (df_mean_unc_img["OOD"] == ood)]
             if len(df_subset) == 0:
                 continue
 
@@ -359,7 +355,7 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
                 i_img = df_subset.loc[idx]["level_0"]
                 img_data = df_image.loc[i_img]
                 sigma = np.array(img_data["Sigma"])
-                entropy = np.log(sigma**2)
+                entropy = np.log(sigma ** 2)
 
                 ret = [img_data["Input"], img_data["Mu"], entropy]
                 return list(map(trim, ret))
@@ -371,19 +367,17 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
             imgs_max[ood] = get_imgs_from_idx(idx=idxquantile(df_subset["Entropy"], 0.95))
             imgs_min[ood] = get_imgs_from_idx(idx=idxquantile(df_subset["Entropy"], 0.05))
 
-        all_entropy_imgs = np.array([ [d[ood][2] for ood in d.keys()] for d in (imgs_max, imgs_min)])
+        all_entropy_imgs = np.array([[d[ood][2] for ood in d.keys()] for d in (imgs_max, imgs_min)])
         entropy_bounds = (all_entropy_imgs.min(), all_entropy_imgs.max())
 
         Path(os.path.join(output_dir, "images")).mkdir(parents=True, exist_ok=True)
         for d in (imgs_max, imgs_min):
             for ood, (x, y, entropy) in d.items():
                 id = os.path.join(output_dir, f"images/method_{method}_ood_{ood}_entropy_{entropy.mean()}")
-                cv2.imwrite(f"{id}_0.png", 255*x)
+                cv2.imwrite(f"{id}_0.png", 255 * x)
                 cv2.imwrite(f"{id}_1.png", apply_cmap(y, cmap=cv2.COLORMAP_JET))
-                entropy = (entropy - entropy_bounds[0]) / (entropy_bounds[1]-entropy_bounds[0])
+                entropy = (entropy - entropy_bounds[0]) / (entropy_bounds[1] - entropy_bounds[0])
                 cv2.imwrite(f"{id}_2.png", apply_cmap(entropy))
-
-
 
     ### Plot CDFs for every method on both OOD and IN
     df_cumdf = pd.DataFrame(columns=["Method", "Model Path", "OOD", unc_key, "CDF"])
@@ -393,27 +387,23 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
         for model_path in df_mean_unc_img["Model Path"].unique():
             for ood in df_mean_unc_img["OOD"].unique():
                 df = df_mean_unc_img[
-                    (df_mean_unc_img["Method"]==method) &
-                    (df_mean_unc_img["Model Path"]==model_path) &
-                    (df_mean_unc_img["OOD"]==ood)]
+                    (df_mean_unc_img["Method"] == method) &
+                    (df_mean_unc_img["Model Path"] == model_path) &
+                    (df_mean_unc_img["OOD"] == ood)]
                 if len(df) == 0:
                     continue
                 unc = np.sort(df[unc_key])
-                prob = np.linspace(0,1,unc.shape[0])
-                f_cdf = scipy.interpolate.interp1d(unc, prob, fill_value=(0.,1.), bounds_error=False)
+                prob = np.linspace(0, 1, unc.shape[0])
+                f_cdf = scipy.interpolate.interp1d(unc, prob, fill_value=(0., 1.), bounds_error=False)
                 prob_ = f_cdf(unc_)
 
                 df_single = pd.DataFrame({'Method': method, 'Model Path': model_path,
-                    'OOD': ood, unc_key: unc_, 'CDF': prob_})
+                                          'OOD': ood, unc_key: unc_, 'CDF': prob_})
                 df_cumdf = df_cumdf.append(df_single)
 
     sns.lineplot(data=df_cumdf, x=unc_key, y="CDF", hue="Method", style="OOD")
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_cdfs.pdf"))
     plt.show()
-
-
-
-
 
 
 def load_data():
@@ -423,17 +413,17 @@ def load_data():
     print("Loaded data:", x_test.shape, x_ood_test.shape)
     return (x_test, y_test), (x_ood_test, y_ood_test)
 
-def predict(method, model, x, n_samples=10):
 
+def predict(method, model, x, n_samples=10):
     if method == Model.Dropout:
-        preds = tf.stack([model(x, training=True) for _ in range(n_samples)], axis=0) #forward pass
+        preds = tf.stack([model(x, training=True) for _ in range(n_samples)], axis=0)  # forward pass
         mu, var = tf.nn.moments(preds, axes=0)
         return mu, tf.sqrt(var)
 
     elif method == Model.Evidential:
         outputs = model(x, training=False)
         mu, v, alpha, beta = tf.split(outputs, 4, axis=-1)
-        sigma = tf.sqrt(beta/(v*(alpha-1)))
+        sigma = tf.sqrt(beta / (v * (alpha - 1)))
         return mu, sigma
 
     elif method == Model.Ensemble:
@@ -448,16 +438,20 @@ def predict(method, model, x, n_samples=10):
     else:
         raise ValueError("Unknown model")
 
+
 def apply_cmap(gray, cmap=cv2.COLORMAP_MAGMA):
     if gray.dtype == np.float32:
-        gray = np.clip(255*gray, 0, 255).astype(np.uint8)
+        gray = np.clip(255 * gray, 0, 255).astype(np.uint8)
     im_color = cv2.applyColorMap(gray, cmap)
     return im_color
 
+
 def trim(img, k=10):
     return img[k:-k, k:-k]
+
+
 def normalize(x, t_min=0, t_max=1):
-    return ((x-x.min())/(x.max()-x.min())) * (t_max-t_min) + t_min
+    return ((x - x.min()) / (x.max() - x.min())) * (t_max - t_min) + t_min
 
 
 @tf.function
@@ -466,7 +460,7 @@ def create_adversarial_pattern(model, x, y):
     with tf.GradientTape() as tape:
         tape.watch(x_)
         if isinstance(model, list):
-            preds = tf.stack([model_(x_, training=False) for model_ in model], axis=0) #forward pass
+            preds = tf.stack([model_(x_, training=False) for model_ in model], axis=0)  # forward pass
             pred, _ = tf.nn.moments(preds, axes=0)
         else:
             (pred) = model(x_, training=True)
@@ -480,14 +474,12 @@ def create_adversarial_pattern(model, x, y):
     return signed_grad
 
 
-
 if args.load_pkl:
     print("Loading!")
     df_image = pd.read_pickle("cached_depth_results.pkl")
 else:
     df_image = compute_predictions()
     df_image.to_pickle("cached_depth_results.pkl")
-
 
 """ ================================================== """
 Path(output_dir).mkdir(parents=True, exist_ok=True)

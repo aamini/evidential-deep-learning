@@ -1,9 +1,10 @@
-import h5py
 import os
-from scipy.io import loadmat
+
 import cv2
-from tqdm import tqdm
+import h5py
 import numpy as np
+from scipy.io import loadmat
+from tqdm import tqdm
 
 nyu_root = "/data/nyu_depth_processed"
 train_path = "./data/depth_train_big_new.h5"
@@ -14,8 +15,9 @@ if not path.isdir(nyu_root):
         Or follow the instructions in the README to download a subset of the \
         data to test this the code provided in this repository.")
 
-
-datasets = ["bedroom", "bathroom","cafe","bookstore","classroom","computer_lab","conference_room","dentist_office","dining_room","excercise_room","foyer","home_office","kitchen","library","living_room","office_","study_"]
+datasets = ["bedroom", "bathroom", "cafe", "bookstore", "classroom", "computer_lab", "conference_room",
+            "dentist_office", "dining_room", "excercise_room", "foyer", "home_office", "kitchen", "library",
+            "living_room", "office_", "study_"]
 
 scan_paths = []
 dirs = set()
@@ -49,11 +51,11 @@ for scan_path in tqdm(scan_paths):
     # if len(imgs)>100: break
 
 print("saving")
-n=len(imgs)
+n = len(imgs)
 all_idx = np.arange(n)
-train_idx = np.random.choice(all_idx, int(n*0.9),replace=False)
+train_idx = np.random.choice(all_idx, int(n * 0.9), replace=False)
 train_idx = sorted(train_idx)
-test_idx = list(set(all_idx)-set(train_idx))
+test_idx = list(set(all_idx) - set(train_idx))
 test_idx = sorted(test_idx)
 
 imgs = np.array(imgs)
@@ -69,4 +71,6 @@ f.create_dataset("image", data=imgs[test_idx], dtype=np.uint8)
 f.create_dataset("depth", data=depths[test_idx], dtype=np.uint8)
 f.close()
 
-import pdb; pdb.set_trace()
+import pdb;
+
+pdb.set_trace()

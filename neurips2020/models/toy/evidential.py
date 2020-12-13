@@ -1,15 +1,14 @@
 import tensorflow as tf
-import tensorflow_probability as tfp
-import functools
+
 import evidential_deep_learning as edl
 
-def create(
-    input_shape,
-    num_neurons=50,
-    num_layers=1,
-    activation=tf.nn.relu,
-    ):
 
+def create(
+        input_shape,
+        num_neurons=50,
+        num_layers=1,
+        activation=tf.nn.relu,
+):
     options = locals().copy()
 
     inputs = tf.keras.Input(input_shape)

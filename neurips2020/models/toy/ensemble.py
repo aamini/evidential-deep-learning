@@ -1,16 +1,16 @@
 import tensorflow as tf
-import functools
+
 import evidential_deep_learning
 
-def create(
-    input_shape,
-    num_neurons=50,
-    num_layers=1,
-    activation=tf.nn.relu,
-    num_ensembles=5,
-    sigma=True
-    ):
 
+def create(
+        input_shape,
+        num_neurons=50,
+        num_layers=1,
+        activation=tf.nn.relu,
+        num_ensembles=5,
+        sigma=True
+):
     options = locals().copy()
 
     def create_model():

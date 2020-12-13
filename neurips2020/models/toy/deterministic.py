@@ -1,13 +1,14 @@
-import tensorflow as tf
 import functools
 
-def create(
-    input_shape,
-    num_neurons=100,
-    num_layers=2,
-    activation=tf.nn.relu,
-    ):
+import tensorflow as tf
 
+
+def create(
+        input_shape,
+        num_neurons=100,
+        num_layers=2,
+        activation=tf.nn.relu,
+):
     options = locals().copy()
 
     Dense = functools.partial(tf.keras.layers.Dense, activation=activation)

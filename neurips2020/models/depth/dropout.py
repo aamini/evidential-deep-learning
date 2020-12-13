@@ -1,8 +1,11 @@
+import functools
+
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, \
     UpSampling2D, Cropping2D, concatenate, ZeroPadding2D, SpatialDropout2D
-import functools
+
 from evidential_deep_learning.tf.layers import Conv2DNormal
+
 
 def create(input_shape, drop_prob=0.1, reg=None, sigma=False, activation=tf.nn.relu, num_class=1, lam=1e-3, l=0.5):
     opts = locals().copy()
@@ -11,7 +14,8 @@ def create(input_shape, drop_prob=0.1, reg=None, sigma=False, activation=tf.nn.r
     inputs = tf.keras.layers.Input(shape=input_shape)
     # inputs_normalized = tf.multiply(inputs, 1/255.)
 
-    Conv2D_ = functools.partial(Conv2D, activation=activation, padding='same', kernel_regularizer=reg, bias_regularizer=reg)
+    Conv2D_ = functools.partial(Conv2D, activation=activation, padding='same', kernel_regularizer=reg,
+                                bias_regularizer=reg)
 
     conv1 = Conv2D_(32, (3, 3))(inputs)
     conv1 = Conv2D_(32, (3, 3))(conv1)
@@ -38,28 +42,28 @@ def create(input_shape, drop_prob=0.1, reg=None, sigma=False, activation=tf.nn.r
 
     up_conv5 = UpSampling2D(size=(2, 2))(conv5)
     ch, cw = get_crop_shape(conv4, up_conv5)
-    crop_conv4 = Cropping2D(cropping=(ch,cw))(conv4)
+    crop_conv4 = Cropping2D(cropping=(ch, cw))(conv4)
     up6 = concatenate([up_conv5, crop_conv4], axis=concat_axis)
     conv6 = Conv2D_(256, (3, 3))(up6)
     conv6 = Conv2D_(256, (3, 3))(conv6)
 
     up_conv6 = UpSampling2D(size=(2, 2))(conv6)
     ch, cw = get_crop_shape(conv3, up_conv6)
-    crop_conv3 = Cropping2D(cropping=(ch,cw))(conv3)
+    crop_conv3 = Cropping2D(cropping=(ch, cw))(conv3)
     up7 = concatenate([up_conv6, crop_conv3], axis=concat_axis)
     conv7 = Conv2D_(128, (3, 3))(up7)
     conv7 = Conv2D_(128, (3, 3))(conv7)
 
     up_conv7 = UpSampling2D(size=(2, 2))(conv7)
     ch, cw = get_crop_shape(conv2, up_conv7)
-    crop_conv2 = Cropping2D(cropping=(ch,cw))(conv2)
+    crop_conv2 = Cropping2D(cropping=(ch, cw))(conv2)
     up8 = concatenate([up_conv7, crop_conv2], axis=concat_axis)
     conv8 = Conv2D_(64, (3, 3))(up8)
     conv8 = Conv2D_(64, (3, 3))(conv8)
 
     up_conv8 = UpSampling2D(size=(2, 2))(conv8)
     ch, cw = get_crop_shape(conv1, up_conv8)
-    crop_conv1 = Cropping2D(cropping=(ch,cw))(conv1)
+    crop_conv1 = Cropping2D(cropping=(ch, cw))(conv1)
     up9 = concatenate([up_conv8, crop_conv1], axis=concat_axis)
     conv9 = Conv2D_(32, (3, 3))(up9)
     conv9 = Conv2D_(32, (3, 3))(conv9)
@@ -75,21 +79,22 @@ def create(input_shape, drop_prob=0.1, reg=None, sigma=False, activation=tf.nn.r
     model = tf.keras.models.Model(inputs=inputs, outputs=conv10)
     return model, opts
 
+
 def get_crop_shape(target, refer):
     # width, the 3rd dimension
     cw = (target.get_shape()[2] - refer.get_shape()[2])
     assert (cw >= 0)
     if cw % 2 != 0:
-        cw1, cw2 = int(cw/2), int(cw/2) + 1
+        cw1, cw2 = int(cw / 2), int(cw / 2) + 1
     else:
-        cw1, cw2 = int(cw/2), int(cw/2)
+        cw1, cw2 = int(cw / 2), int(cw / 2)
     # height, the 2nd dimension
     ch = (target.get_shape()[1] - refer.get_shape()[1])
     assert (ch >= 0)
     if ch % 2 != 0:
-        ch1, ch2 = int(ch/2), int(ch/2) + 1
+        ch1, ch2 = int(ch / 2), int(ch / 2) + 1
     else:
-        ch1, ch2 = int(ch/2), int(ch/2)
+        ch1, ch2 = int(ch / 2), int(ch / 2)
 
     return (ch1, ch2), (cw1, cw2)
 

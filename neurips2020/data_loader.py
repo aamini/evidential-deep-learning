@@ -1,31 +1,32 @@
 """
 IO module for train/test regression datasets
 """
+import os
+
+import h5py
 import numpy as np
 import pandas as pd
-import os
-import h5py
 import tensorflow as tf
-
 
 
 def generate_cubic(x, noise=False):
     x = x.astype(np.float32)
-    y = x**3
+    y = x ** 3
 
     if noise:
         sigma = 3 * np.ones_like(x)
     else:
         sigma = np.zeros_like(x)
     r = np.random.normal(0, sigma).astype(np.float32)
-    return y+r, sigma
+    return y + r, sigma
 
 
 #####################################
 # individual data files             #
 #####################################
-vb_dir   = os.path.dirname(__file__)
+vb_dir = os.path.dirname(__file__)
 data_dir = os.path.join(vb_dir, "data/uci")
+
 
 def _load_boston():
     """
@@ -47,8 +48,8 @@ def _load_boston():
     """
     data = np.loadtxt(os.path.join(data_dir,
                                    'boston-housing/boston_housing.txt'))
-    X    = data[:, :-1]
-    y    = data[:,  -1]
+    X = data[:, :-1]
+    y = data[:, -1]
     return X, y
 
 
@@ -67,8 +68,8 @@ def _load_powerplant():
     """
     data_file = os.path.join(data_dir, 'power-plant/Folds5x2_pp.xlsx')
     data = pd.read_excel(data_file)
-    x    = data.values[:, :-1]
-    y    = data.values[:,  -1]
+    x = data.values[:, :-1]
+    y = data.values[:, -1]
     return x, y
 
 
@@ -93,8 +94,8 @@ def _load_concrete():
     """
     data_file = os.path.join(data_dir, 'concrete/Concrete_Data.xls')
     data = pd.read_excel(data_file)
-    X    = data.values[:, :-1]
-    y    = data.values[:,  -1]
+    X = data.values[:, :-1]
+    y = data.values[:, -1]
     return X, y
 
 
@@ -113,8 +114,8 @@ def _load_yacht():
     """
     data_file = os.path.join(data_dir, 'yacht/yacht_hydrodynamics.data')
     data = pd.read_csv(data_file, delim_whitespace=True)
-    X    = data.values[:, :-1]
-    y    = data.values[:,  -1]
+    X = data.values[:, :-1]
+    y = data.values[:, -1]
     return X, y
 
 
@@ -144,8 +145,8 @@ def _load_energy_efficiency():
     y2    Cooling Load
     """
     data_file = os.path.join(data_dir, 'energy-efficiency/ENB2012_data.xlsx')
-    data      = pd.read_excel(data_file)
-    X         = data.values[:, :-2]
+    data = pd.read_excel(data_file)
+    X = data.values[:, :-2]
     y_heating = data.values[:, -2]
     y_cooling = data.values[:, -1]
     return X, y_cooling
@@ -172,10 +173,11 @@ def _load_wine():
     """
     # data_file = os.path.join(data_dir, 'wine-quality/winequality-red.csv')
     data_file = os.path.join(data_dir, 'wine-quality/wine_data_new.txt')
-    data     = pd.read_csv(data_file, sep=' ', header=None)
+    data = pd.read_csv(data_file, sep=' ', header=None)
     X = data.values[:, :-1]
-    y = data.values[:,  -1]
+    y = data.values[:, -1]
     return X, y
+
 
 def _load_kin8nm():
     """
@@ -195,9 +197,9 @@ def _load_kin8nm():
     9 - target
     """
     data_file = os.path.join(data_dir, 'kin8nm/dataset_2175_kin8nm.csv')
-    data     = pd.read_csv(data_file, sep=',')
+    data = pd.read_csv(data_file, sep=',')
     X = data.values[:, :-1]
-    y = data.values[:,  -1]
+    y = data.values[:, -1]
     return X, y
 
 
@@ -232,6 +234,7 @@ def _load_naval():
     y_turbine = data[:, -1]
     return X, y_turbine
 
+
 def _load_protein():
     """
     Physicochemical Properties of Protein Tertiary Structure Data Set
@@ -254,10 +257,11 @@ def _load_protein():
         F9 - Spacial Distribution constraints (N,K Value).
     """
     data_file = os.path.join(data_dir, 'protein/CASP.csv')
-    data     = pd.read_csv(data_file, sep=',')
+    data = pd.read_csv(data_file, sep=',')
     X = data.values[:, 1:]
     y = data.values[:, 0]
     return X, y
+
 
 def _load_song():
     """
@@ -280,8 +284,8 @@ def _load_song():
     """
     data = np.loadtxt(os.path.join(data_dir,
                                    'song/YearPredictionMSD.txt'), delimiter=',')
-    X    = data[:, :-1]
-    y    = data[:,  -1]
+    X = data[:, :-1]
+    y = data[:, -1]
     return X, y
 
 
@@ -290,26 +294,29 @@ def _load_depth():
     test = h5py.File("data/depth_test.h5", "r")
     return (train["image"], train["depth"]), (test["image"], test["depth"])
 
+
 def load_depth():
     return _load_depth()
+
 
 def load_apollo():
     test = h5py.File("data/apolloscape_test.h5", "r")
     return (None, None), (test["image"], test["depth"])
 
+
 def load_dataset(name, split_seed=0, test_fraction=.1, return_as_tensor=False):
     # load full dataset
-    load_funs = { "wine"              : _load_wine,
-                  "boston"            : _load_boston,
-                  "concrete"          : _load_concrete,
-                  "power-plant"       : _load_powerplant,
-                  "yacht"             : _load_yacht,
-                  "energy-efficiency" : _load_energy_efficiency,
-                  "kin8nm"            : _load_kin8nm,
-                  "naval"             : _load_naval,
-                  "protein"           : _load_protein,
-                  "depth"              : _load_depth,
-                  "song"              : _load_song}
+    load_funs = {"wine": _load_wine,
+                 "boston": _load_boston,
+                 "concrete": _load_concrete,
+                 "power-plant": _load_powerplant,
+                 "yacht": _load_yacht,
+                 "energy-efficiency": _load_energy_efficiency,
+                 "kin8nm": _load_kin8nm,
+                 "naval": _load_naval,
+                 "protein": _load_protein,
+                 "depth": _load_depth,
+                 "song": _load_song}
 
     print("Loading dataset {}....".format(name))
     if name == "depth":
@@ -320,15 +327,14 @@ def load_dataset(name, split_seed=0, test_fraction=.1, return_as_tensor=False):
     X, y = load_funs[name]()
     X = X.astype(np.float32)
     y = y.astype(np.float32)
+
     def standardize(data):
         mu = data.mean(axis=0, keepdims=1)
         scale = data.std(axis=0, keepdims=1)
-        scale[scale<1e-10] = 1.0
+        scale[scale < 1e-10] = 1.0
 
         data = (data - mu) / scale
         return data, mu, scale
-
-
 
     # We create the train and test sets with 90% and 10% of the data
 
@@ -340,12 +346,12 @@ def load_dataset(name, split_seed=0, test_fraction=.1, return_as_tensor=False):
 
     if name == "boston" or name == "wine":
         test_fraction = 0.2
-    size_train  = int(np.round(X.shape[ 0 ] * (1 - test_fraction)))
-    index_train = permutation[ 0 : size_train ]
-    index_test  = permutation[ size_train : ]
+    size_train = int(np.round(X.shape[0] * (1 - test_fraction)))
+    index_train = permutation[0: size_train]
+    index_test = permutation[size_train:]
 
-    X_train = X[ index_train, : ]
-    X_test  = X[ index_test, : ]
+    X_train = X[index_train, :]
+    X_test = X[index_test, :]
 
     if name == "depth":
         y_train = y[index_train]
@@ -353,7 +359,6 @@ def load_dataset(name, split_seed=0, test_fraction=.1, return_as_tensor=False):
     else:
         y_train = y[index_train, None]
         y_test = y[index_test, None]
-
 
     X_train, x_train_mu, x_train_scale = standardize(X_train)
     X_test = (X_test - x_train_mu) / x_train_scale
@@ -371,10 +376,7 @@ def load_dataset(name, split_seed=0, test_fraction=.1, return_as_tensor=False):
     return (X_train, y_train), (X_test, y_test), y_train_scale
 
 
-
-
 def load_flight_delay():
-
     # Download from here: http://staffwww.dcs.shef.ac.uk/people/N.Lawrence/dataset_mirror/airline_delay/
     data = pd.read_pickle("data/flight-delay/filtered_data.pickle")
     y = np.array(data['ArrDelay'])
@@ -389,20 +391,18 @@ def load_flight_delay():
 
     X = X[:, np.where(data.var(axis=0) > 0)[0]]
     X, _ = standardize(X)
-    y, y_scale = standardize(y.reshape(-1,1))
+    y, y_scale = standardize(y.reshape(-1, 1))
     y = np.squeeze(y)
     # y_scale = np.array([[1.0]])
 
     N = 700000
     S = 100000
-    X_train = X[:N,:]
+    X_train = X[:N, :]
     X_test = X[N:N + S, :]
     y_train = y[:N]
     y_test = y[N:N + S]
 
-
     return (X_train, y_train), (X_test, y_test), y_scale
-
 
 # (X_train, y_train), (X_test, y_test) = load_dataset('boston')
 # (X_train, y_train), (X_test, y_test) = load_dataset('concrete')
