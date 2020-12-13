@@ -1,5 +1,5 @@
 import torch
-from torch.distributions import StudentT
+from torch.distributions import StudentT, Normal
 from torch import nn
 
 MSE = nn.MSELoss(reduction='mean')
@@ -20,6 +20,11 @@ def reduce(val, reduction):
 def RMSE(y, y_):
     return MSE(y, y_).sqrt()
 
+
+def Gaussian_NLL(y, mu, sigma, reduction='mean'):
+    dist = Normal(loc=mu, scale=sigma)
+    logprob = -1. * dist.log_prob(y)
+    return reduce(logprob, reduction=reduction)
 
 def NIG_NLL(y: torch.Tensor,
             gamma: torch.Tensor,
