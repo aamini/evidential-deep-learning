@@ -16,7 +16,7 @@ def create(
     x = inputs
     for _ in range(num_layers):
         x = tf.keras.layers.Dense(num_neurons, activation=activation)(x)
-    output = edl.layers.DenseNormal(1)(x)
+    output = evidential_deep_learning.tf.layers.DenseNormal(1)(x)
     model = tf.keras.Model(inputs=inputs, outputs=output)
 
     return model, options
