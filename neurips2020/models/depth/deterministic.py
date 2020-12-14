@@ -1,8 +1,6 @@
 import tensorflow as tf
 
 from evidential_deep_learning.tf.layers import Conv2DNormal
-from . import dropout
-
 
 def create(input_shape, activation=tf.nn.relu, num_class=1):
     opts = locals().copy()

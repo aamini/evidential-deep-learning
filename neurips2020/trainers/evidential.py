@@ -5,7 +5,6 @@ import datetime
 import os
 import h5py
 from pathlib import Path
-import evidential_deep_learning
 
 from .util import normalize, gallery
 

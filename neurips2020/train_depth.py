@@ -6,7 +6,7 @@ import os
 import time
 import tensorflow as tf
 
-import evidential_deep_learning as edl
+import edl
 import data_loader
 import models
 import trainers

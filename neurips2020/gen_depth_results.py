@@ -12,7 +12,7 @@ import scipy.stats
 import tensorflow as tf
 from tqdm import tqdm
 
-import evidential_deep_learning as edl
+import edl
 import models
 
 parser = argparse.ArgumentParser()
