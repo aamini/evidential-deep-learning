@@ -1,15 +1,13 @@
-import datetime
-import os
-import time
-from pathlib import Path
-
-import h5py
 import numpy as np
 import tensorflow as tf
-
+import time
+import datetime
+import os
+import h5py
+from pathlib import Path
 import evidential_deep_learning
-from .util import normalize, gallery
 
+from .util import normalize, gallery
 
 class Evidential:
     def __init__(self, model, opts, dataset="", learning_rate=1e-3, lam=0.0, epsilon=1e-2, maxi_rate=1e-4, tag=""):
@@ -31,7 +29,7 @@ class Evidential:
 
         trainer = self.__class__.__name__
         current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.save_dir = os.path.join('save', '{}_{}_{}_{}'.format(current_time, dataset, trainer, tag))
+        self.save_dir = os.path.join('save','{}_{}_{}_{}'.format(current_time, dataset, trainer, tag))
         Path(self.save_dir).mkdir(parents=True, exist_ok=True)
 
         train_log_dir = os.path.join('logs', '{}_{}_{}_{}_train'.format(current_time, dataset, trainer, tag))
@@ -54,9 +52,9 @@ class Evidential:
             mu, v, alpha, beta = tf.split(outputs, 4, axis=-1)
             loss, (nll_loss, reg_loss) = self.loss_function(y, mu, v, alpha, beta, return_comps=True)
 
-        grads = tape.gradient(loss, self.model.trainable_variables)  # compute gradient
+        grads = tape.gradient(loss, self.model.trainable_variables) #compute gradient
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
-        self.lam = self.lam.assign_add(self.maxi_rate * (reg_loss - self.epsilon))  # update lambda
+        self.lam = self.lam.assign_add(self.maxi_rate * (reg_loss - self.epsilon)) #update lambda
 
         return loss, nll_loss, reg_loss, mu, v, alpha, beta
 
@@ -72,50 +70,50 @@ class Evidential:
 
     def normalize(self, x):
         return tf.divide(tf.subtract(x, tf.reduce_min(x)),
-                         tf.subtract(tf.reduce_max(x), tf.reduce_min(x)))
+               tf.subtract(tf.reduce_max(x), tf.reduce_min(x)))
+
 
     def save_train_summary(self, loss, x, y, y_hat, v, alpha, beta):
         with self.train_summary_writer.as_default():
             tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, y_hat, v, alpha, beta)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
-            if tf.shape(x).shape == 4:
-                tf.summary.image("x", [gallery(tf.gather(x, idx).numpy())], max_outputs=1, step=self.iter)
+            if tf.shape(x).shape==4:
+                tf.summary.image("x", [gallery(tf.gather(x,idx).numpy())], max_outputs=1, step=self.iter)
 
-            if tf.shape(y).shape == 4:
-                tf.summary.image("y", [gallery(tf.gather(y, idx).numpy())], max_outputs=1, step=self.iter)
-                tf.summary.image("y_hat", [gallery(tf.gather(y_hat, idx).numpy())], max_outputs=1, step=self.iter)
+            if tf.shape(y).shape==4:
+                tf.summary.image("y", [gallery(tf.gather(y,idx).numpy())], max_outputs=1, step=self.iter)
+                tf.summary.image("y_hat", [gallery(tf.gather(y_hat,idx).numpy())], max_outputs=1, step=self.iter)
 
     def save_val_summary(self, loss, x, y, mu, v, alpha, beta):
         with self.val_summary_writer.as_default():
             tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, mu)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, mu, v, alpha, beta)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
-            if tf.shape(x).shape == 4:
-                tf.summary.image("x", [gallery(tf.gather(x, idx).numpy())], max_outputs=1, step=self.iter)
+            if tf.shape(x).shape==4:
+                tf.summary.image("x", [gallery(tf.gather(x,idx).numpy())], max_outputs=1, step=self.iter)
 
-            if tf.shape(y).shape == 4:
-                tf.summary.image("y", [gallery(tf.gather(y, idx).numpy())], max_outputs=1, step=self.iter)
-                tf.summary.image("y_hat", [gallery(tf.gather(mu, idx).numpy())], max_outputs=1, step=self.iter)
-                var = beta / (v * (alpha - 1))
-                tf.summary.image("y_var", [gallery(normalize(tf.gather(var, idx)).numpy())], max_outputs=1,
-                                 step=self.iter)
+            if tf.shape(y).shape==4:
+                tf.summary.image("y", [gallery(tf.gather(y,idx).numpy())], max_outputs=1, step=self.iter)
+                tf.summary.image("y_hat", [gallery(tf.gather(mu,idx).numpy())], max_outputs=1, step=self.iter)
+                var = beta/(v*(alpha-1))
+                tf.summary.image("y_var", [gallery(normalize(tf.gather(var,idx)).numpy())], max_outputs=1, step=self.iter)
 
     def get_batch(self, x, y, batch_size):
         idx = np.random.choice(x.shape[0], batch_size, replace=False)
         if isinstance(x, tf.Tensor):
-            x_ = x[idx, ...]
-            y_ = y[idx, ...]
+            x_ = x[idx,...]
+            y_ = y[idx,...]
         elif isinstance(x, np.ndarray) or isinstance(x, h5py.Dataset):
             idx = np.sort(idx)
-            x_ = x[idx, ...]
-            y_ = y[idx, ...]
+            x_ = x[idx,...]
+            y_ = y[idx,...]
 
             x_divisor = 255. if x_.dtype == np.uint8 else 1.0
             y_divisor = 255. if y_.dtype == np.uint8 else 1.0
 
-            x_ = tf.convert_to_tensor(x_ / x_divisor, tf.float32)
-            y_ = tf.convert_to_tensor(y_ / y_divisor, tf.float32)
+            x_ = tf.convert_to_tensor(x_/x_divisor, tf.float32)
+            y_ = tf.convert_to_tensor(y_/y_divisor, tf.float32)
         else:
             print("unknown dataset type {} {}".format(type(x), type(y)))
         return x_, y_
@@ -127,7 +125,7 @@ class Evidential:
         if previous == float('inf'):
             new = current
         else:
-            new = alpha * previous + (1 - alpha) * current
+            new = alpha*previous + (1-alpha)*current
         return new
 
     def train(self, x_train, y_train, x_test, y_test, y_scale, batch_size=128, iters=10000, verbose=True):
@@ -143,8 +141,8 @@ class Evidential:
                 x_test_batch, y_test_batch = self.get_batch(x_test, y_test, min(100, x_test.shape[0]))
                 mu, v, alpha, beta, vloss, rmse, nll, reg_loss = self.evaluate(x_test_batch, y_test_batch)
 
-                nll += np.log(y_scale[0, 0])
-                rmse *= y_scale[0, 0]
+                nll += np.log(y_scale[0,0])
+                rmse *= y_scale[0,0]
 
                 self.save_val_summary(vloss, x_test_batch, y_test_batch, mu, v, alpha, beta)
 
@@ -163,10 +161,7 @@ class Evidential:
                     self.min_vloss = self.running_vloss
                     self.save(f"model_vloss_{self.iter}")
 
-                if verbose: print(
-                    "[{}]  RMSE: {:.4f} \t NLL: {:.4f} \t loss: {:.4f} \t reg_loss: {:.4f} \t lambda: {:.2f} \t t: {:.2f} sec".format(
-                        self.iter, self.min_rmse, self.min_nll, vloss, reg_loss.numpy().mean(), self.lam.numpy(),
-                        time.time() - tic))
+                if verbose: print("[{}]  RMSE: {:.4f} \t NLL: {:.4f} \t loss: {:.4f} \t reg_loss: {:.4f} \t lambda: {:.2f} \t t: {:.2f} sec".format(self.iter, self.min_rmse, self.min_nll, vloss, reg_loss.numpy().mean(), self.lam.numpy(), time.time()-tic))
                 tic = time.time()
 
         return self.model, self.min_rmse, self.min_nll

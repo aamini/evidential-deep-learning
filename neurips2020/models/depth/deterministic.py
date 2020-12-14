@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+from evidential_deep_learning.tf.layers import Conv2DNormal
 from . import dropout
 
 

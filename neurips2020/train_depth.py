@@ -1,10 +1,16 @@
 import argparse
+import cv2
+import h5py
+import numpy as np
+import os
+import time
+import tensorflow as tf
 
+import evidential_deep_learning as edl
 import data_loader
 import models
-import numpy as np
-import tensorflow as tf
 import trainers
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", default="evidential", type=str,
@@ -46,9 +52,9 @@ elif args.model == "ensemble":
     model, opts = model_generator.create(input_shape=x_train.shape[1:], sigma=False)
     trainer = trainer_obj(model, opts, args.learning_rate)
 
+
 ### Train the model
-model, rmse, nll = trainer.train(x_train, y_train, x_test, y_test, np.array([[1.]]), iters=args.iters,
-                                 batch_size=args.batch_size, verbose=True)
+model, rmse, nll = trainer.train(x_train, y_train, x_test, y_test, np.array([[1.]]), iters=args.iters, batch_size=args.batch_size, verbose=True)
 tf.keras.backend.clear_session()
 
 print("Done training!")
