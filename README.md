@@ -12,7 +12,7 @@ This repository contains the code to reproduce [Deep Evidential Regression](http
 To use this package, you must install the following dependencies first: 
 - python (>=3.7)
 - tensorflow (>=2.0)
-- pytorch (support coming soon)
+- pytorch (>=1.6)
 
 Now you can install to start adding evidential layers and losses to your models!
 ```
