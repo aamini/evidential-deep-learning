@@ -3,13 +3,16 @@ import tensorflow as tf
 import time
 import datetime
 import os
+import sys
 import h5py
 from pathlib import Path
 
+import evidential_deep_learning as edl
+from .util import normalize, gallery
 
 class Deterministic:
     def __init__(self, model, opts, dataset="", learning_rate=1e-3, tag=""):
-        self.loss_function = evidential_deep_learning.tf.losses.MSE
+        self.loss_function = edl.losses.MSE
 
         self.model = model
 
@@ -42,14 +45,14 @@ class Deterministic:
     @tf.function
     def evaluate(self, x, y):
         y_hat = self.model(x, training=True) #forward pass
-        rmse = evidential_deep_learning.tf.losses.RMSE(y, y_hat)
+        rmse = edl.losses.RMSE(y, y_hat)
         loss = self.loss_function(y, y_hat)
 
         return y_hat, loss, rmse
 
     def save_train_summary(self, loss, x, y, y_hat):
         with self.train_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, y_hat)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(loss), step=self.iter)
 
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
@@ -62,7 +65,7 @@ class Deterministic:
 
     def save_val_summary(self, loss, x, y, y_hat):
         with self.val_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, y_hat)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, y_hat)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:

@@ -1,16 +1,19 @@
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 import time
 import datetime
 import os
+import sys
 import h5py
 from pathlib import Path
 
+import evidential_deep_learning as edl
 from .util import normalize, gallery
 
 class BBBP:
     def __init__(self, model, opts, dataset="", learning_rate=1e-3, tag=""):
-        self.loss_function = evidential_deep_learning.tf.losses.MSE
+        self.loss_function = edl.losses.MSE
 
         self.model = model
 
@@ -46,8 +49,8 @@ class BBBP:
     def evaluate(self, x, y):
         preds = tf.stack([self.model(x, training=True) for _ in range(5)], axis=0) #forward pass
         mu, var = tf.nn.moments(preds, axes=0)
-        rmse = evidential_deep_learning.tf.losses.RMSE(y, mu)
-        nll = evidential_deep_learning.tf.losses.Gaussian_NLL(y, mu, tf.sqrt(var))
+        rmse = edl.losses.RMSE(y, mu)
+        nll = edl.losses.Gaussian_NLL(y, mu, tf.sqrt(var))
         loss = self.loss_function(y, mu)
 
         return mu, var, loss, rmse, nll
@@ -55,7 +58,7 @@ class BBBP:
     def save_train_summary(self, loss, x, y, y_hat):
         with self.train_summary_writer.as_default():
             # tf.summary.scalar('loss', tf.reduce_mean(loss), step=self.iter)
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, y_hat)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:
                 tf.summary.image("x", [gallery(tf.gather(x,idx).numpy())], max_outputs=1, step=self.iter)
@@ -67,7 +70,7 @@ class BBBP:
     def save_val_summary(self, loss, x, y, mu, var):
         with self.val_summary_writer.as_default():
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, mu)), step=self.iter)
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, mu)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, mu)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:
                 tf.summary.image("x", [gallery(tf.gather(x,idx).numpy())], max_outputs=1, step=self.iter)

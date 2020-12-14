@@ -3,15 +3,17 @@ import tensorflow as tf
 import time
 import datetime
 import os
+import sys
 import h5py
 from pathlib import Path
 
+import evidential_deep_learning as edl
 from .util import normalize, gallery
 
 class Evidential:
     def __init__(self, model, opts, dataset="", learning_rate=1e-3, lam=0.0, epsilon=1e-2, maxi_rate=1e-4, tag=""):
-        self.nll_loss_function = evidential_deep_learning.tf.losses.NIG_NLL
-        self.reg_loss_function = evidential_deep_learning.tf.losses.NIG_Reg
+        self.nll_loss_function = edl.losses.NIG_NLL
+        self.reg_loss_function = edl.losses.NIG_Reg
 
         self.model = model
         self.learning_rate = learning_rate
@@ -62,7 +64,7 @@ class Evidential:
         outputs = self.model(x, training=False)
         mu, v, alpha, beta = tf.split(outputs, 4, axis=-1)
 
-        rmse = evidential_deep_learning.tf.losses.RMSE(y, mu)
+        rmse = edl.losses.RMSE(y, mu)
         loss, (nll, reg_loss) = self.loss_function(y, mu, v, alpha, beta, return_comps=True)
 
         return mu, v, alpha, beta, loss, rmse, nll, reg_loss
@@ -74,7 +76,7 @@ class Evidential:
 
     def save_train_summary(self, loss, x, y, y_hat, v, alpha, beta):
         with self.train_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, y_hat)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, y_hat, v, alpha, beta)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:
@@ -86,7 +88,7 @@ class Evidential:
 
     def save_val_summary(self, loss, x, y, mu, v, alpha, beta):
         with self.val_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, mu)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, mu)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(self.loss_function(y, mu, v, alpha, beta)), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:

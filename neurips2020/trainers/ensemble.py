@@ -3,15 +3,17 @@ import tensorflow as tf
 import time
 import datetime
 import os
+import sys
 import h5py
 from pathlib import Path
 
+import evidential_deep_learning as edl
 from .util import normalize, gallery
 
 class Ensemble:
     def __init__(self, models, opts, dataset="", learning_rate=1e-3, tag=""):
         self.mse = not opts['sigma']
-        self.loss_function = evidential_deep_learning.tf.losses.MSE if self.mse else evidential_deep_learning.tf.losses.Gaussian_NLL
+        self.loss_function = edl.losses.MSE if self.mse else edl.losses.Gaussian_NLL
 
         self.models = models
 
@@ -70,14 +72,14 @@ class Ensemble:
             var = tf.reduce_mean(sigmas**2 + tf.square(mus), axis=0) - tf.square(mean_mu)
             loss = self.loss_function(y, mean_mu, tf.sqrt(var))
 
-        rmse = evidential_deep_learning.tf.losses.RMSE(y, mean_mu)
-        nll = evidential_deep_learning.tf.losses.Gaussian_NLL(y, mean_mu, tf.sqrt(var))
+        rmse = edl.losses.RMSE(y, mean_mu)
+        nll = edl.losses.Gaussian_NLL(y, mean_mu, tf.sqrt(var))
 
         return mean_mu, var, loss, rmse, nll
 
     def save_train_summary(self, loss, x, y, y_hat):
         with self.train_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, y_hat)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, y_hat)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(loss), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:
@@ -89,7 +91,7 @@ class Ensemble:
 
     def save_val_summary(self, loss, x, y, mu, var):
         with self.val_summary_writer.as_default():
-            tf.summary.scalar('mse', tf.reduce_mean(evidential_deep_learning.tf.losses.MSE(y, mu)), step=self.iter)
+            tf.summary.scalar('mse', tf.reduce_mean(edl.losses.MSE(y, mu)), step=self.iter)
             tf.summary.scalar('loss', tf.reduce_mean(loss), step=self.iter)
             idx = np.random.choice(int(tf.shape(x)[0]), 9)
             if tf.shape(x).shape==4:
