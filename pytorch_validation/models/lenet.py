@@ -75,12 +75,12 @@ class LeNet(pl.LightningModule):
         tb = self.logger.experiment
         images = batch[0][:9]
         grid = torchvision.utils.make_grid(images, nrow=3)
-        tb.add_image('images', grid, batch_idx)
+        tb.add_image('images', grid, self.global_step)
         tb.add_graph(self, images)
 
         if batch_idx == 0:
             for name, param in self.named_parameters():
-                tb.add_histogram(name, param.clone().cpu().data.numpy(), batch_idx)
+                tb.add_histogram(name, param.clone().cpu().data.numpy(), self.epoch)
         return loss
 
     def configure_optimizers(self):
