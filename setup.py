@@ -35,7 +35,7 @@ setup(
     install_requires=[
         "numpy",
         "matplotlib",
-    ],  # Tensorflow must be installed manually
+    ],  # Tensorflow or Pytorch must be installed manually
     python_requires='>=3.7',
     classifiers=[
         "Programming Language :: Python",
