@@ -80,7 +80,7 @@ class LeNet(pl.LightningModule):
 
         if batch_idx == 0:
             for name, param in self.named_parameters():
-                tb.add_histogram(name, param.clone().cpu().data.numpy(), self.epoch)
+                tb.add_histogram(name, param.clone().cpu().data.numpy(), self.current_epoch)
         return loss
 
     def configure_optimizers(self):
