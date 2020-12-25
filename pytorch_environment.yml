@@ -1,0 +1,13 @@
+name: edl
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - mkl
+  - pytorch-lightning
+  - numpy
+  - matplotlib
+  - torchvision
+  - scipy
+
