@@ -1,0 +1,22 @@
+cff-version: "1.1.0"
+message: "If you use this software, please cite it using these metadata."
+title: "Deep Evidential Regression"
+authors: 
+  -
+    family-names: Amini
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0002-9673-1267"
+  -
+    family-names: Schwarting
+    given-names: Wilko
+  -
+    family-names: Soleimany
+    given-names: Ava
+    orcid: "https://orcid.org/0000-0002-8601-6040"
+  -
+    family-names: Rus
+    given-names: Daniela
+conference: "Advances in Neural Information Processing Systems (NeurIPS)"
+year: 2020
+volume: 33
+repository-code: "https://github.com/aamini/evidential-deep-learning"
