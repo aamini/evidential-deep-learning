@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch import log as Log
 import numpy as np
 
@@ -18,13 +17,10 @@ CHECK TORCH AXIS
 
 def MSE(y, y_, reduction='mean'):
     loss_fn = nn.MSELoss(reduction=reduction)
-    # loss = mse_function(y,y_)
-    # return loss
     return loss_fn(y, y_)
 
 
 def RMSE(y, y_):
-
     loss_fn = nn.MSELoss()
     return torch.sqrt(loss_fn(y, y_))
 
@@ -49,7 +45,7 @@ def NIG_NLL(y, gamma, v, alpha, beta, reduce=True):
         + (alpha + 0.5) * Log(v*(y-gamma)**2 + twoBlambda) \
         + torch.lgamma(alpha) \
         - torch.lgamma(alpha + 0.5)
-    pass
+    return torch.mean(nll) if reduce else nll
 
 
 def KL_NIG(mu1, v1, a1, b1, mu2, v2, a2, b2):
