@@ -92,7 +92,7 @@ class Conv2DNormalGamma(nn.Module):
         self.out_channel = out_channel
         self.kernel_size = kernel_size
         super(Conv2DNormal, self).__init__()
-        """self.conv = Conv2D(2 * filters, kernel_size, **kwargs)"""
+        """self.conv = Conv2D(4 * filters, kernel_size, **kwargs)"""
         """in torch, input channel of conv layer has to be specified"""
         self.conv2d = torch.nn.Conv2d(
             in_channels=in_channel, out_channels=4 * out_channel, kernel_size=kernel_size, **kwargs)
