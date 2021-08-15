@@ -29,7 +29,15 @@ class Conv2DNormal(Layer):
         base_config['kernel_size'] = self.kernel_size
         return base_config
 """
+"""
+from pytorch doc:
 
+ torch.nn only supports mini-batches. The entire torch.nn package only supports inputs that are a mini-batch of samples, and not a single sample.
+
+ For example, nn.Conv2d will take in a 4D Tensor of nSamples x nChannels x Height x Width.
+
+ If you have a single sample, just use input.unsqueeze(0) to add a fake batch dimension.
+"""
 
 class Conv2DNormal(nn.Module):
     def __init__(self, in_channel, out_channel, kernel_size, **kwargs):
