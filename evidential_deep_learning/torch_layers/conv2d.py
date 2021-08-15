@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+# search for get config in torch
+
 """Tensorflow api"""
 
 """
@@ -42,12 +44,13 @@ class Conv2DNormal(nn.Module):
 
     def call(self, x):
         output = self.conv2d(x)
-        mu, logsigma = torch.scatter'''TODO'''
+        mu, logsigma = torch.split(output, 2, dim=-1)
+        softplus = nn.Softplus()
+        sigma = softplus(logsigma) + 1e-6
+        return torch.cat([mu, sigma], dim=-1)
 
     def compute_output_shape(self, input_shape):
         return self.conv.compute_output_shape(input_shape)
-
-    # search for get config in torch
 
 
 """
@@ -95,12 +98,16 @@ class Conv2DNormalGamma(nn.Module):
             in_channels=in_channel, out_channels=4 * out_channel, kernel_size=kernel_size, **kwargs)
 
     def evidence(self, x):
-        pass
+        softplus = nn.Softplus()
+        return softplus(x)
 
     def call(self, x):
-        pass
+        output = self.conv2d(x)
+        mu, logv, logalpha, logbeta = tf.split(output, 4, dim=-1)
+        v = self.evidence(logv)
+        alpha = self.evidence(logalpha) + 1
+        beta = self.evidence(logbeta)
+        return torch.cat([mu, v, alpha, beta], dim=-1)
 
     def compute_output_shape(self, input_shape):
         return self.conv.compute_output_shape(input_shape)
-
-    # search for get config in torch
