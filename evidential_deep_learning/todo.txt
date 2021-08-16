@@ -1,0 +1,2 @@
+check the 'device' argument in torch.nn so that models could be trained on GPU
+, also, check the 'cuda' method
