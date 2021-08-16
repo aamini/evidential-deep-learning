@@ -39,7 +39,7 @@ def Gaussian_NLL_logvar(y, mu, logvar, reduce=True):
 
 def NIG_NLL(y, gamma, v, alpha, beta, reduce=True):
     twoBlambda = 2*beta*(1+v)
-
+    # line 45 problematic
     nll = 0.5*Log(np.pi/v) \
         - alpha*Log(twoBlambda) \
         + (alpha + 0.5) * Log(v*(y-gamma)**2 + twoBlambda) \

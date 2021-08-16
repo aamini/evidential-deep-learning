@@ -28,19 +28,21 @@ def main():
     def loss_fn(true, pred):
         return edl.torch_losses.continuous.EvidentialRegression(true, pred, coeff=1e-2)
 
-    lr = 1e-4
+    lr = 1e-6
+    optimizer = torch.optim.Adam(model.parameters(), lr)
     # training loop
     for t in range(10):
         """NotImplemented error: because of the last layer maybe"""
-        y_pred = model(x_t)
+        logits = model(x_t)
 
-        loss = loss_fn(y_pred, y_t)
+        loss = loss_fn(y_t, logits)
 
         print(t, loss.item())
 
-        model.zero_grad()
-
+        # model.zero_grad()
+        optimizer.zero_grad()
         loss.backward()
+        optimizer.step()
 
         with torch.no_grad():
             for param in model.parameters():
@@ -48,8 +50,9 @@ def main():
 
     # prediction
     y_pred = model(x_te)
+    assert y_pred.shape == (1000, 4)
     print(y_pred.shape, "\n")
-    # plot_predictions(x_t, y_t, x_te, y_te, y_pred)
+    plot_predictions(x_t, y_t, x_te, y_te, y_pred)
 
 
 def mydata(x_min, x_max, n, train=True):
@@ -65,8 +68,13 @@ def mydata(x_min, x_max, n, train=True):
 def plot_predictions(x_train, y_train, x_test, y_test, y_pred, n_stds=4, k=0):
     x_test = x_test[:, 0]
     # not enough values to unpack: check torch.split()
-    mu, v, alpha, beta = torch.split(y_pred, 4, dim=-1)
+    mu, v, alpha, beta = torch.split(y_pred, [1, 1, 1, 1], dim=-1)
+    assert mu.shape == (1000, 1)
+    assert v.shape == (1000, 1)
+    assert alpha.shape == (1000, 1)
+    assert beta.shape == (1000, 1)
     mu = mu[:, 0]
+    return
     var = np.sqrt(beta / (v * (alpha - 1)))
     var = np.minimum(var, 1e3)[:, 0]  # for visualization
 
