@@ -22,22 +22,20 @@ def main():
         edl.torch_layers.DenseNormalGamma(64, 1),
 
     )
-    # use a candidate loss for debug
-    #loss_fn = nn.MSELoss(reduction='mean')
 
     def loss_fn(true, pred):
         return edl.torch_losses.continuous.EvidentialRegression(true, pred, coeff=1e-2)
 
-    lr = 1e-6
+    lr = 5e-4
     optimizer = torch.optim.Adam(model.parameters(), lr)
     # training loop
-    for t in range(10):
+    for t in range(50):
         """NotImplemented error: because of the last layer maybe"""
         logits = model(x_t)
 
         loss = loss_fn(y_t, logits)
 
-        print(t, loss.item())
+        print(t+1, loss.item())
 
         # model.zero_grad()
         optimizer.zero_grad()
@@ -51,7 +49,6 @@ def main():
     # prediction
     y_pred = model(x_te)
     assert y_pred.shape == (1000, 4)
-    print(y_pred.shape, "\n")
     plot_predictions(x_t, y_t, x_te, y_te, y_pred)
 
 
@@ -67,21 +64,26 @@ def mydata(x_min, x_max, n, train=True):
 
 def plot_predictions(x_train, y_train, x_test, y_test, y_pred, n_stds=4, k=0):
     x_test = x_test[:, 0]
-    # not enough values to unpack: check torch.split()
+
     mu, v, alpha, beta = torch.split(y_pred, [1, 1, 1, 1], dim=-1)
     assert mu.shape == (1000, 1)
     assert v.shape == (1000, 1)
     assert alpha.shape == (1000, 1)
     assert beta.shape == (1000, 1)
     mu = mu[:, 0]
-    return
+    """# torch.Tensor.detach(): to change the tensor's mode so that it doesn't require grad (require_grad=False)"""
+    mu = mu.detach().numpy()
+    v = v.detach().numpy()
+    alpha = alpha.detach().numpy()
+    beta = beta.detach().numpy()
     var = np.sqrt(beta / (v * (alpha - 1)))
     var = np.minimum(var, 1e3)[:, 0]  # for visualization
 
     plt.figure(figsize=(5, 3), dpi=200)
     plt.scatter(x_train, y_train, s=1., c='#463c3c', zorder=0, label="Train")
     plt.plot(x_test, y_test, 'r--', zorder=2, label="True")
-    plt.plot(x_test, mu, color='#007cab', zorder=3, label="Pred")
+    plt.plot(x_test, mu,
+             color='#007cab', zorder=3, label="Pred")
     plt.plot([-4, -4], [-150, 150], 'k--', alpha=0.4, zorder=0)
     plt.plot([+4, +4], [-150, 150], 'k--', alpha=0.4, zorder=0)
     for k in np.linspace(0, n_stds, 4):
