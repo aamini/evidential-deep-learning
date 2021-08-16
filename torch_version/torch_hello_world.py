@@ -2,7 +2,7 @@ import functools
 import numpy as np
 import matplotlib.pyplot as plt
 #import evidential_deep_learning as edl
-import torch_ver as edl
+import torch_Evidential as edl
 import torch
 import torch.nn as nn
 
