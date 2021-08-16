@@ -19,13 +19,14 @@ def main():
         nn.ReLU(),
         nn.Linear(64, 64),
         nn.ReLU(),
-        #nn.Linear(64, 1),
-        # edl
         edl.torch_layers.DenseNormalGamma(64, 1),
 
     )
     # use a candidate loss for debug
-    loss_fn = nn.MSELoss(reduction='mean')
+    #loss_fn = nn.MSELoss(reduction='mean')
+
+    def loss_fn(true, pred):
+        return edl.torch_losses.continuous.EvidentialRegression(true, pred, coeff=1e-2)
 
     lr = 1e-4
     # training loop

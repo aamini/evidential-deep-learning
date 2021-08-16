@@ -11,7 +11,7 @@ class DenseNormal(nn.Module):
         # Dense in tf equivalent to Linear in torch
         self.dense = nn.Linear(in_features, out_features)
 
-    def call(self, x):
+    def forward(self, x):
         output = self.dense(x)
         mu, logsigma = torch.split(output, 2, dim=-1)
         softplus = nn.Softplus()
@@ -40,8 +40,9 @@ class DenseNormalGamma(nn.Module):
         softplus = nn.Softplus()
         return softplus(x)
 
-    def call(self, x):
+    def forward(self, x):
         output = self.dense(x)
+        return output
         mu, logv, logalpha, logbeta = torch.split(output, 4, dim=-1)
         v = self.evidence(logv)
         alpha = self.evidence(logalpha) + 1
@@ -65,7 +66,7 @@ class DenseDirichlet(nn.Module):
         self.out_features = out_features
         self.dense = nn.Linear(in_features, out_features)
 
-    def call(self, x):
+    def forward(self, x):
         output = self.dense(x)
         evidence = torch.exp(output)
         alpha = evidence + 1
@@ -84,7 +85,7 @@ class DenseSigmoid(nn.Module):
         self.out_features = out_features
         self.dense = nn.Linear(in_features, out_features)
 
-    def call(self, x):
+    def forward(self, x):
         logits = self.dense(x)
         prob = torch.sigmoid(logits)
         return [logits, prob]

@@ -48,7 +48,7 @@ class Conv2DNormal(nn.Module):
         self.conv2d = nn.Conv2d(
             in_channels=in_channel, out_channels=2*out_channel, kernel_size=kernel_size, **kwargs)
 
-    def call(self, x):
+    def forward(self, x):
         output = self.conv2d(x)
         mu, logsigma = torch.split(output, 2, dim=-1)
         softplus = nn.Softplus()
@@ -111,7 +111,7 @@ class Conv2DNormalGamma(nn.Module):
         softplus = nn.Softplus()
         return softplus(x)
 
-    def call(self, x):
+    def forward(self, x):
         output = self.conv2d(x)
         mu, logv, logalpha, logbeta = tf.split(output, 4, dim=-1)
         v = self.evidence(logv)
