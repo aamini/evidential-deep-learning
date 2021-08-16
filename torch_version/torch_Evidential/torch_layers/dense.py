@@ -30,12 +30,13 @@ class DenseNormal(nn.Module):
 class DenseNormalGamma(nn.Module):
     def __init__(self, in_features, out_features):
         super(DenseNormalGamma, self).__init__()
-        # check type
-        self.in_features = in_features
-        self.out_features = out_features
-        self.dense = nn.Linear(in_features, out_features)
+        # check data type
+        self.in_features = int(in_features)
+        self.out_features = int(out_features)
+        self.dense = nn.Linear(self.in_features, 4*self.out_features)
 
     def evidence(self, x):
+        return nn.Softplus(x)
         softplus = nn.Softplus()
         return softplus(x)
 
