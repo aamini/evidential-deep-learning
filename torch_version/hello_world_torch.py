@@ -30,7 +30,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr)
     # training loop
     for t in range(50):
-        """NotImplemented error: because of the last layer maybe"""
+
         logits = model(x_t)
 
         loss = loss_fn(y_t, logits)
