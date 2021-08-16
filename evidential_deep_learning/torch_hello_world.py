@@ -1,7 +1,8 @@
 import functools
 import numpy as np
 import matplotlib.pyplot as plt
-import evidential_deep_learning as edl
+#import evidential_deep_learning as edl
+import torch_ver as edl
 import torch
 import torch.nn as nn
 
@@ -24,14 +25,14 @@ def main():
         tf.keras.layers.Dense(64, activation="relu"),
         edl.layers.DenseNormalGamma(1),
     ])"""
-    model = nn.Sequential([
+    model = nn.Sequential(
         # in_features missing
-        nn.Linear(out_features=64),
+        nn.Linear(in_features=1,out_features=64),
         nn.ReLU(),
-        nn.Linear(out_features=64),
+        nn.Linear(in_features=64,out_features=64),
         nn.ReLU(),
-        edl.torch_layers.DenseNormalGamma(1),
-    ])
+        edl.torch_layers.DenseNormalGamma(64,1),
+    )
 
     # Custom loss function to handle the custom regularizer coefficient
     def EvidentialRegressionLoss(true, pred):
@@ -52,7 +53,11 @@ def main():
     learning_rate = 1e-4
     for i in range(500):
         # check if we need to unsqueeze it
-        y_hat = model(x_train)
+        # input must be a tensor, not a numpy.ndarray
+        #y_hat = model(x_train)
+        x = torch.from_numpy(x_train)
+        #x = torch.unsqueeze(x,0)
+        y_hat = model(x)
 
         loss = EvidentialRegressionLoss(y_train, y_hat)
 
@@ -71,8 +76,8 @@ def main():
                 param -= learning_rate*param.grad
 
     # prediction
-    y_pred = model(x_test)
-    plot_predictions(x_train, y_train, x_test, y_test, y_pred)
+    #y_pred = model(x_test)
+    #plot_predictions(x_train, y_train, x_test, y_test, y_pred)
 
     # Done!!
 
