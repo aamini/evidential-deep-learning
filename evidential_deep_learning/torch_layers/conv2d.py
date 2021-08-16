@@ -1,10 +1,7 @@
 import torch
 import torch.nn as nn
 
-# search for get config in torch
-
 """Tensorflow api"""
-
 """
 class Conv2DNormal(Layer):
     def __init__(self, filters, kernel_size, **kwargs):
@@ -39,6 +36,7 @@ from pytorch doc:
  If you have a single sample, just use input.unsqueeze(0) to add a fake batch dimension.
 """
 
+
 class Conv2DNormal(nn.Module):
     def __init__(self, in_channel, out_channel, kernel_size, **kwargs):
         self.in_channel = in_channel
@@ -47,8 +45,8 @@ class Conv2DNormal(nn.Module):
         super(Conv2DNormal, self).__init__()
         """self.conv = Conv2D(2 * filters, kernel_size, **kwargs)"""
         """in torch, input channel of conv layer has to be specified"""
-        self.conv2d = torch.nn.Conv2d(
-            in_channels=in_channel, out_channels=2 * out_channel, kernel_size=kernel_size, **kwargs)
+        self.conv2d = nn.Conv2d(
+            in_channels=in_channel, out_channels=2*out_channel, kernel_size=kernel_size, **kwargs)
 
     def call(self, x):
         output = self.conv2d(x)
@@ -59,6 +57,12 @@ class Conv2DNormal(nn.Module):
 
     def compute_output_shape(self, input_shape):
         return self.conv.compute_output_shape(input_shape)
+
+    def get_config(self):
+        base_config = super(Conv2DNormal, self).get_config()
+        base_config['filters'] = self.filters
+        base_config['kernel_size'] = self.kernel_size
+        return base_config
 
 
 """
@@ -89,8 +93,6 @@ class Conv2DNormalGamma(Layer):
         base_config['filters'] = self.filters
         base_config['kernel_size'] = self.kernel_size
         return base_config
-
-
 """
 
 
@@ -102,7 +104,7 @@ class Conv2DNormalGamma(nn.Module):
         super(Conv2DNormal, self).__init__()
         """self.conv = Conv2D(4 * filters, kernel_size, **kwargs)"""
         """in torch, input channel of conv layer has to be specified"""
-        self.conv2d = torch.nn.Conv2d(
+        self.conv2d = nn.Conv2d(
             in_channels=in_channel, out_channels=4 * out_channel, kernel_size=kernel_size, **kwargs)
 
     def evidence(self, x):
@@ -119,3 +121,9 @@ class Conv2DNormalGamma(nn.Module):
 
     def compute_output_shape(self, input_shape):
         return self.conv.compute_output_shape(input_shape)
+
+    def get_config(self):
+        base_config = super(Conv2DNormalGamma, self).get_config()
+        base_config['filters'] = self.filters
+        base_config['kernel_size'] = self.kernel_size
+        return base_config
