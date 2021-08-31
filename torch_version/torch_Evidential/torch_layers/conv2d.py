@@ -122,8 +122,8 @@ class Conv2DNormalGamma(nn.Module):
     def compute_output_shape(self, input_shape):
         return self.conv.compute_output_shape(input_shape)
 
-    def get_config(self):
-        base_config = super(Conv2DNormalGamma, self).get_config()
-        base_config['filters'] = self.filters
-        base_config['kernel_size'] = self.kernel_size
-        return base_config
+    # def get_config(self):
+    #     base_config = super(Conv2DNormalGamma, self).get_config()
+    #     base_config['filters'] = self.filters
+    #     base_config['kernel_size'] = self.kernel_size
+    #     return base_config

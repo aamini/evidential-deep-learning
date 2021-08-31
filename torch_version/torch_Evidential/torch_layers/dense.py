@@ -21,10 +21,10 @@ class DenseNormal(nn.Module):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], 2 * self.out_features)
 
-    def get_config(self):
-        base_config = super(DenseNormal, self).get_config()
-        base_config['units'] = self.units
-        return base_config
+    # def get_config(self):
+    #     base_config = super(DenseNormal, self).get_config()
+    #     base_config['units'] = self.units
+    #     return base_config
 
 
 class DenseNormalGamma(nn.Module):
@@ -52,10 +52,10 @@ class DenseNormalGamma(nn.Module):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], 4*self.out_features)
 
-    def get_config(self):
-        base_config = super(DenseNormalGamma, self).get_config()
-        base_config['units'] = self.units
-        return base_config
+    # def get_config(self):
+    #     base_config = super(DenseNormalGamma, self).get_config()
+    #     base_config['units'] = self.units
+    #     return base_config
 
 
 class DenseDirichlet(nn.Module):
